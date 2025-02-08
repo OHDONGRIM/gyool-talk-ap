@@ -2,7 +2,11 @@ package com.gyooltalk.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 public class LoginController {
@@ -11,9 +15,16 @@ public class LoginController {
     public String home() {
         return "This is Main!";  // 그냥 문자열을 반환
     }
-    @GetMapping("/login")
-    public String login() {
-        return "This is Login Page!";  // 그냥 문자열을 반환
+
+    @PostMapping("/login")
+    public String login(@RequestBody Map<String, Object> params) {
+        String result = null;
+
+        if(params.get("id").equals("test") && params.get("pwd").equals("test")){
+            result="success";
+        }
+        System.out.println("로그인 시도 - ID: " + params.get("id") + ", PWD: " + params.get("pwd"));
+        return result;
     }
 
     @GetMapping("/talk")
