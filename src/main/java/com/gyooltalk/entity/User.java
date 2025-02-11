@@ -1,11 +1,10 @@
 package com.gyooltalk.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Builder
@@ -23,5 +22,9 @@ public class User {
     private String userProfileImg;
     private LocalDateTime registerDate;
     private LocalDateTime lastLoginDate;
+
+    // fetch lazy, 필드 호출 시에만 db호출
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserToken> userTokens;
 
 }
