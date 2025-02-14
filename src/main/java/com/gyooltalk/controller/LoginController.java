@@ -1,5 +1,6 @@
 package com.gyooltalk.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
+@Slf4j
 public class LoginController {
 
     @GetMapping("/")
@@ -18,6 +20,8 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@RequestBody Map<String, Object> params) {
+        log.debug("login params: {}", params);
+
         String result = null;
 
         if(params.get("id").equals("test") && params.get("pwd").equals("test")){

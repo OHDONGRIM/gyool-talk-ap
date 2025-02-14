@@ -19,7 +19,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // 필요시 활성화 고려
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/login").permitAll() // 로그인 페이지 허용
+                        .requestMatchers("/login", "/join", "/api/user/**").permitAll() // 로그인 페이지 허용
                         .anyRequest().authenticated() // 그 외 경로는 인증 필요
                 );
         return http.build();
