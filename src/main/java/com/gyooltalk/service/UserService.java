@@ -19,4 +19,15 @@ public class UserService {
         Optional<User> user = userRepository.findByUserEmail(email);
         return user.map(User::getUserId).orElse(null);  // 아이디 없으면 null 반환
     }
+    public boolean existsByUserId(String id) {
+        boolean exists = userRepository.existsByUserId(id);
+        return exists;
+    }
+
+    public boolean insertUser(User user) {
+        userRepository.save(user);
+        boolean exists = userRepository.existsByUserId(user.getUserId());
+
+        return exists;
+    }
 }
