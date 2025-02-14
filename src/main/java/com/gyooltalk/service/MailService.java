@@ -5,6 +5,7 @@ import com.gyooltalk.repository.EmailAuthRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -20,6 +21,8 @@ import java.util.Random;
 public class MailService {
 
     private final JavaMailSender javaMailSender;
+
+    @Autowired
     private EmailAuthRepository emailAuthRepository;
 
     @Value("${spring.mail.username}")
