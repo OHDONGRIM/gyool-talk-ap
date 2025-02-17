@@ -1,9 +1,12 @@
 package com.gyooltalk.controller;
 
+import com.gyooltalk.payload.UserDto;
 import com.gyooltalk.service.MailService;
 import com.gyooltalk.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +17,7 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
@@ -22,35 +25,40 @@ public class UserController {
 
 
     @PostMapping("/confirmEmail")
-    public boolean confirmEmail(@RequestBody Map<String, Object> params) {
-        boolean result =true;
+    public ResponseEntity<String> confirmEmail(@RequestBody Map<String, Object> params) {
         String email = (String) params.get("email");
+
+        if (userService.findByUserEmail(email) == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 이메일을 찾을 수 없습니다.");
+        }
+
         try {
             mailService.sendMail(email);
-        }catch(Exception e) {
-            result = false;
-            e.printStackTrace();
+            return ResponseEntity.ok("인증 메일이 발송되었습니다.");
+        } catch (Exception e) {
+            log.error("메일 전송 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("메일 전송 중 오류 발생");
         }
-        return result;
     }
 
     @PostMapping("/checkAuthNum")
-    public boolean checkAuthNum(@RequestBody Map<String, Object> params) {
+    public ResponseEntity<Boolean> checkAuthNum(@RequestBody Map<String, Object> params) {
         String email = (String) params.get("email");
         String authNum = (String) params.get("authNum");
 
         log.debug("email:{},authNum:{}", email, authNum);
 
-        return mailService.checkAuthNum(email,authNum);
+        boolean result =  mailService.checkAuthNum(email,authNum);
+        return ResponseEntity.ok().body(result);
     }
 
     @PostMapping("/findId")
-    public String findId(@RequestBody Map<String, Object> params) {
+    public ResponseEntity<UserDto> findId(@RequestBody Map<String, Object> params) {
         log.debug("findId: {}", params);
         String email = (String) params.get("email");
-        return userService.findByUserEmail(email);
+        UserDto user = userService.findByUserEmail(email);
+        return ResponseEntity.ok(user);
     }
-
 
 }
 
