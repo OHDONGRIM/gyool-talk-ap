@@ -31,6 +31,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserToken> userTokens;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Chatroom> chatrooms;
+
     @PrePersist
     public void prePersist() {
         this.registerDate = LocalDateTime.now(); // 현재 시간으로 등록시간 설정

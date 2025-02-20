@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "chatrooms")
+@Document(collection = "chat")
 public class Chat {
 
     @Id
