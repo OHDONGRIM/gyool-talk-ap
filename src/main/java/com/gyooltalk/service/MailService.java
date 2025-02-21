@@ -1,6 +1,7 @@
 package com.gyooltalk.service;
 
 import com.gyooltalk.entity.EmailAuth;
+import com.gyooltalk.payload.UserDto;
 import com.gyooltalk.repository.EmailAuthRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -89,15 +90,15 @@ public class MailService {
         return mimeMessage;
     }
 
-    public void sendMail(String email) {
+    public void sendMail(UserDto userDto) {
         try {
-            MimeMessage message = createMessage(email);
+            MimeMessage message = createMessage((String) userDto.getUserEmail());
             if (message == null) {
-                log.error("Failed to create email message for {}", email);
+                log.error("Failed to create email message for {}", userDto.getUserEmail());
                 return;
             }
             javaMailSender.send(message);
-            log.info("Email sent successfully to {}", email);
+            log.info("Email sent successfully to {}", userDto.getUserEmail());
         } catch (Exception e) {
             log.error("Failed to send email", e);
         }
