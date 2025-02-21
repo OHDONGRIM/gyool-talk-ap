@@ -25,15 +25,14 @@ public class UserController {
 
 
     @PostMapping("/confirmEmail")
-    public ResponseEntity<String> confirmEmail(@RequestBody Map<String, Object> params) {
-        String email = (String) params.get("email");
+    public ResponseEntity<String> confirmEmail(@RequestBody UserDto userDto) {
 
-        if (userService.findByUserEmail(email) == null) {
+        if (userService.findByUserEmail(userDto) == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 이메일을 찾을 수 없습니다.");
         }
 
         try {
-            mailService.sendMail(email);
+            mailService.sendMail(userDto);
             return ResponseEntity.ok("인증 메일이 발송되었습니다.");
         } catch (Exception e) {
             log.error("메일 전송 실패", e);
@@ -53,11 +52,15 @@ public class UserController {
     }
 
     @PostMapping("/findId")
-    public ResponseEntity<UserDto> findId(@RequestBody Map<String, Object> params) {
-        log.debug("findId: {}", params);
-        String email = (String) params.get("email");
-        UserDto user = userService.findByUserEmail(email);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<?> findId(@RequestBody UserDto userDto) {
+        log.debug("findId: {}", userDto);
+        return userService.findByUserEmail(userDto);
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<Boolean> resetPassword(@RequestBody UserDto userDto) {
+        log.debug("findId: {}", userDto);
+        return userService.resetPassword(userDto);
     }
 
 }
