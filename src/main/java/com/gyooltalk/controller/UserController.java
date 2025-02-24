@@ -1,5 +1,6 @@
 package com.gyooltalk.controller;
 
+import com.gyooltalk.payload.FriendAddDto;
 import com.gyooltalk.payload.UserDto;
 import com.gyooltalk.service.MailService;
 import com.gyooltalk.service.UserService;
@@ -61,6 +62,12 @@ public class UserController {
     public ResponseEntity<Boolean> resetPassword(@RequestBody UserDto userDto) {
         log.debug("findId: {}", userDto);
         return userService.resetPassword(userDto);
+    }
+
+    @PostMapping("/addFriend")
+    public ResponseEntity<Boolean> addFriend(@RequestBody FriendAddDto friendAddDto) {
+        log.debug("friendAddDto: {}", friendAddDto);
+        return userService.addFriend(friendAddDto);
     }
 
 }
