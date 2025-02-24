@@ -16,4 +16,5 @@ public class UserDto {
     private String userProfileImg;
     private String registerDate;
     private String lastLoginDate;
+    private boolean isFriendRequest;
 }
