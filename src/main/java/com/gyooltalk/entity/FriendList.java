@@ -18,6 +18,7 @@ public class FriendList {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "user_user_id") // 외래 키 컬럼 이름 지정
     private User user;
 
     @ManyToOne

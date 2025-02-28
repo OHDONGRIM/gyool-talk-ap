@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface FriendListRepository extends JpaRepository<FriendList, String> {
     boolean existsByFriendAndStatus(User friend, int status);
+    List<FriendList> findByUser_UserId(String userId);
+
 
     @Query(value = "SELECT " +
             "    fl.id as id, " +
