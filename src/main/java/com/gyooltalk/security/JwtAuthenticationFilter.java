@@ -36,8 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         AntPathMatcher pathMatcher = new AntPathMatcher();
 
+        logger.debug(request.getRequestURI());
+
         for (String pattern : SecurityConfig.AUTH_WHITELIST) {
-            logger.debug(pattern);
             if (pathMatcher.match(pattern, request.getRequestURI())) {
                 filterChain.doFilter(request, response);
                 return;
@@ -66,7 +67,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
-
         filterChain.doFilter(request, response);
     }
 
