@@ -1,18 +1,16 @@
 package com.gyooltalk.payload;
 
-import lombok.Builder;
-import lombok.Data;
-
-@Data
-@Builder
-public class FriendListDto {
+public interface FriendListDto {
 
     // FriendList 식별자
-    private Long id;
-    // 친구 별명
-    private String friendNickName;
+    Long getId();
+    // 친구 아이디
+    String getUserId();
+    // 친구 별명 (내가 설정한 별명)
+    String getFriendNickName();
     // 친구 썸네일 Url
-    private String userProfileImg;
-    private String friendUserNickName;
+    String getUserProfileImg();
+    // 친구가 설정한 별명
+    String getFriendUserNickName();
 
 }
