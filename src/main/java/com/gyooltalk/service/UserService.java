@@ -7,6 +7,7 @@
     import com.gyooltalk.payload.UserDto;
     import com.gyooltalk.repository.FriendListRepository;
     import com.gyooltalk.repository.UserRepository;
+    import jakarta.transaction.Transactional;
     import lombok.RequiredArgsConstructor;
     import lombok.extern.slf4j.Slf4j;
     import org.springframework.http.HttpStatus;
@@ -57,7 +58,13 @@
             return exists;
         }
 
-        public boolean insertUser(User user) {
+        public boolean insertUser(UserDto userDto) {
+            User user = User.builder()
+                            .userId(userDto.getUserId())
+                            .userPassword(userDto.getUserPassword())
+                            .userEmail(userDto.getUserEmail())
+                            .userNickName(userDto.getUserNickName())
+                            .build();
             userRepository.save(user);
             boolean exists = userRepository.existsByUserId(user.getUserId());
 
@@ -91,5 +98,15 @@
             friendListRepository.save(friendList);
 
             return ResponseEntity.ok(true);
+        }
+
+        @Transactional
+        public ResponseEntity<?>  UpdateNickname(UserDto userDto) {
+            int updatedCount = userRepository.updateNickname(userDto.getUserId(), userDto.getUserNickName());
+            if (updatedCount >0){
+
+                return ResponseEntity.ok(userDto);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }

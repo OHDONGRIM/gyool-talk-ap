@@ -2,6 +2,7 @@ package com.gyooltalk.controller;
 
 
 import com.gyooltalk.entity.User;
+import com.gyooltalk.payload.UserDto;
 import com.gyooltalk.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,7 @@ public class JoinController {
     }
 
     @PostMapping("/joinUser")
-    public boolean joinUser(@RequestBody User params) {
+    public boolean joinUser(@RequestBody UserDto params) {
 
 
         System.out.println("params is: "+params+"<---params");
