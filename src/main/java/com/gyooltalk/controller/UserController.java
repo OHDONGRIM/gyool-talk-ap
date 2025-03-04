@@ -70,5 +70,11 @@ public class UserController {
         return userService.addFriend(friendAddDto);
     }
 
+    @PostMapping("/upDateNickName")
+    public ResponseEntity<?> upDateNickName(@RequestBody UserDto userDto) {
+        log.info("reqe: " + userDto);
+
+        return userService.UpdateNickname(userDto);
+    }
 }
 
