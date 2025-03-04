@@ -19,4 +19,5 @@ public class Attachment {
 
     @Field("file_path")
     private String filePath; // 파일 경로
+
 }

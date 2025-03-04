@@ -5,10 +5,7 @@ import com.gyooltalk.service.ChattingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
@@ -23,5 +20,11 @@ public class ChattingController {
         log.debug("createChatting createChattingRequestDto: {}", createChattingRequestDto);
 
         return chattingService.createChatting(createChattingRequestDto);
+    }
+
+    @GetMapping("/fetchChatroom")
+    public ResponseEntity<?> fetchChatroom() {
+        log.debug("fetchChatroom");
+        return chattingService.fetchChatroom();
     }
 }
