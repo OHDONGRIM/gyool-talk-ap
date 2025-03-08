@@ -28,7 +28,7 @@ public class UserController {
     @PostMapping("/confirmEmail")
     public ResponseEntity<String> confirmEmail(@RequestBody UserDto userDto) {
 
-        if (userService.findByUserEmail(userDto) == null) {
+        if (userService.findByUserEmail(userDto) == null && userDto.getUserId() != null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 이메일을 찾을 수 없습니다.");
         }
 
