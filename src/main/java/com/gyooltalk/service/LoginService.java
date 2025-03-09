@@ -47,11 +47,15 @@ public class LoginService {
 
         // 토큰 기록은 좀 더 생각해봐야할 듯.
 
+
+
         // LoginResponseDto 객체 생성후 200 코드와 함께 반환
         return ResponseEntity.ok(LoginResponseDto.builder()
                         .token(token)
                         .userId(user.getUserId())
+                        .userProfileImg(user.getUserProfileImg() == null ? "" : user.getUserProfileImg())
                         .userNickname(user.getUserNickName())
+
                 .build());
     }
 }

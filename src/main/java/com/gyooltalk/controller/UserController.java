@@ -5,6 +5,7 @@ import com.gyooltalk.payload.UserDto;
 import com.gyooltalk.service.MailService;
 import com.gyooltalk.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.connector.Request;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -85,12 +86,11 @@ public class UserController {
         return userService.UpdateNickname(userDto);
     }
 
-//    @PostMapping("/upload/image")
-//    public ResponseEntity<Boolean> uploadFile(@RequestParam("uri") String uri, @RequestParam("userId") String userId){
-//
-//
-//        return userService.uploadImage(uri,userId);
-//    }
+    @PostMapping("/upload/image")
+    public ResponseEntity<String> uploadFile( @RequestParam("uri") String uri, @RequestParam("userId") String userId){
+
+        return userService.uploadImage(uri,userId);
+    }
 
 }
 

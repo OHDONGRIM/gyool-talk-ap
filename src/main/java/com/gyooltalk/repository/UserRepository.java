@@ -24,10 +24,11 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("UPDATE User u SET u.userNickName = :nickname WHERE u.userId = :id")
     int updateNickname(String id,String nickname);
 
-//    //프로필사진 경로 업데이트
-//    @Modifying
-//    @Query("UPDATE User u SET u.userProfileImg = :path WHERE u.userId = :id")
-//    int uploadImage(String id,String path);
+    //프로필사진 경로 업데이트
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.userProfileImg = :path WHERE u.userId = :id")
+    int uploadImage(String id,String path);
 
 }
 
