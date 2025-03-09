@@ -36,6 +36,7 @@ public class SecurityConfig {
             "/login",
             "/join/**",
             "/user/**",
+            "/ws/**",
             "/",
             "/favicon.ico",
             "/static/**",  // 정적 리소스 경로
