@@ -5,14 +5,22 @@ import com.gyooltalk.payload.UserDto;
 import com.gyooltalk.service.MailService;
 import com.gyooltalk.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.connector.Request;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Base64;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
 import java.util.Map;
 
 @RestController
@@ -20,6 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
+
 
     private final UserService userService;
     private final MailService mailService;
@@ -76,5 +85,12 @@ public class UserController {
 
         return userService.UpdateNickname(userDto);
     }
+
+    @PostMapping("/upload/image")
+    public ResponseEntity<String> uploadFile( @RequestParam("uri") String uri, @RequestParam("userId") String userId){
+
+        return userService.uploadImage(uri,userId);
+    }
+
 }
 
