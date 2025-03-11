@@ -37,7 +37,7 @@ public class UserController {
     @PostMapping("/confirmEmail")
     public ResponseEntity<String> confirmEmail(@RequestBody UserDto userDto) {
 
-        if (userService.findByUserEmail(userDto) == null && userDto.getUserId() != null) {
+        if (userService.findByUserEmail(userDto,null) == null && userDto.getUserId() != null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 이메일을 찾을 수 없습니다.");
         }
 
@@ -64,7 +64,7 @@ public class UserController {
     @PostMapping("/findId")
     public ResponseEntity<?> findId(@RequestBody UserDto userDto) {
         log.debug("findId: {}", userDto);
-        return userService.findByUserEmail(userDto);
+        return userService.findByUserEmail(userDto,null);
     }
 
     @PostMapping("/resetPassword")
@@ -73,24 +73,9 @@ public class UserController {
         return userService.resetPassword(userDto);
     }
 
-    @PostMapping("/addFriend")
-    public ResponseEntity<Boolean> addFriend(@RequestBody FriendAddDto friendAddDto) {
-        log.debug("friendAddDto: {}", friendAddDto);
-        return userService.addFriend(friendAddDto);
-    }
 
-    @PostMapping("/upDateNickName")
-    public ResponseEntity<?> upDateNickName(@RequestBody UserDto userDto) {
-        log.info("reqe: " + userDto);
 
-        return userService.UpdateNickname(userDto);
-    }
 
-    @PostMapping("/upload/image")
-    public ResponseEntity<String> uploadFile( @RequestParam("uri") String uri, @RequestParam("userId") String userId){
-
-        return userService.uploadImage(uri,userId);
-    }
 
 }
 
