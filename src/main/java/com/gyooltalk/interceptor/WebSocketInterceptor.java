@@ -9,6 +9,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class WebSocketInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        log.info("WebSocketInterceptor ==> ", message.getPayload());
+
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (accessor != null && accessor.getCommand() == StompCommand.CONNECT) {
@@ -34,12 +35,21 @@ public class WebSocketInterceptor implements ChannelInterceptor {
             if (token != null && token.startsWith(TOKEN_PREFIX)) {
                 token = token.substring(TOKEN_PREFIX.length()); // "Bearer " 제거
 
-                // 토큰 검증
                 if (jwtTokenProvider.validateToken(token)) {
-                    // 인증 정보 주입
-                    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                    accessor.setUser(auth);
+                    // UserId 추출
+                    String userId = jwtTokenProvider.getUserId(token);
+
+                    // UserId만 포함된 Authentication 객체 생성
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, null);
+
+                    // SecurityContext 및 WebSocket 세션에 인증 정보 저장
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    accessor.setUser(authentication);
+                } else {
+                    log.warn("토큰 검증 실패");
                 }
+            } else {
+                log.warn("token x");
             }
         }
         return message;

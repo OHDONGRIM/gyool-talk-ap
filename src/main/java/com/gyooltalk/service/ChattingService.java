@@ -1,6 +1,7 @@
 package com.gyooltalk.service;
 
 import com.gyooltalk.entity.Chat;
+import com.gyooltalk.entity.Message;
 import com.gyooltalk.payload.ChatDto;
 import com.gyooltalk.payload.CreateChattingRequestDto;
 import com.gyooltalk.repository.ChatRepository;
@@ -57,9 +58,23 @@ public class ChattingService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName();
-
+        log.debug("ChattingService fetchChatroom userId: {}", userId);
         List<ChatDto> chatDtos = chatRepository.findByUserId(userId);
+        log.debug("ChattingService fetchChatroom chatDtos: {}", chatDtos);
 
         return ResponseEntity.ok(chatDtos);
+    }
+
+    public Chat saveMessage(Long chatId, Message message) {
+        Optional<Chat> optionalChat = chatRepository.findById(chatId);
+
+        if (optionalChat.isPresent()) {
+            Chat chat = optionalChat.get();
+            chat.getMessages().add(message);
+            return chatRepository.save(chat);  // MongoDB에 저장
+        } else {
+            // 채팅방을 찾을 수 없을 때 예외를 던집니다.
+            throw new RuntimeException("채팅방을 찾을 수 없습니다.");
+        }
     }
 }
