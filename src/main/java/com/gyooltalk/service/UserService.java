@@ -23,6 +23,7 @@
     import java.time.LocalDateTime;
     import java.util.Base64;
     import java.util.Date;
+    import java.util.HashMap;
     import java.util.Map;
 
     @Service
@@ -41,11 +42,15 @@
              * 2. 로그인 후 친구 추가 아이디 찾기  ==> userDto.getUserEmail == null
              * */
             User user = userDto.getUserEmail() !=null ? userRepository.findByUserEmail(userDto.getUserEmail()) :userRepository.findByUserId(userDto.getUserId());
+            Map<String, Object> body = new HashMap<>();
 
             // user null 체크
             if (user == null) {
+
+                body.put("message", "사용자를 찾을 수 없습니다.");
+                body.put("isEmailUser", "N"); // 새 key-value 추가
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "사용자를 찾을 수 없습니다."));
+                        .body(body);
             }
 
             UserDto.UserDtoBuilder builder = UserDto.builder()
