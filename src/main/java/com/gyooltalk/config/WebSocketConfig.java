@@ -18,12 +18,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final WebSocketInterceptor webSocketInterceptor;
 
     //  Simple Message Broker 활성화, Subscriber들에게 메시지를 전달
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        log.info("register stomp endpoint");
-
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
@@ -31,8 +30,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        log.info("configureMessageBroker");
         registry.enableSimpleBroker("/subscribe");
         registry.setApplicationDestinationPrefixes("/publish");
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(webSocketInterceptor);
     }
 }
