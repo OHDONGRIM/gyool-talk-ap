@@ -1,9 +1,12 @@
 package com.gyooltalk.service;
 
+import com.gyooltalk.entity.Attachment;
 import com.gyooltalk.entity.Chat;
 import com.gyooltalk.entity.Message;
+import com.gyooltalk.payload.AttachmentDto;
 import com.gyooltalk.payload.ChatDto;
 import com.gyooltalk.payload.CreateChattingRequestDto;
+import com.gyooltalk.payload.SendMessageDto;
 import com.gyooltalk.repository.ChatRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,8 +72,31 @@ public class ChattingService {
         return ResponseEntity.ok(chatDtos);
     }
 
-    public Chat saveMessage(Long chatId, Message message) {
+    public Chat saveMessage(Long chatId, SendMessageDto messageDto) {
+
         Optional<Chat> optionalChat = chatRepository.findById(chatId);
+        List<Attachment> attachments = new ArrayList<>();
+
+        if(messageDto.getAttachments().size() > 0){
+            for(AttachmentDto attachment : messageDto.getAttachments()){
+                Attachment attach = Attachment.builder()
+                        .id(attachment.getId())
+                        .fileType(attachment.getFileType())
+                        .filePath(attachment.getFilePath())
+                        .build();
+                attachments.add(attach);
+            }
+        }
+        ZonedDateTime utcDateTime = ZonedDateTime.parse(messageDto.getTimestamp(), DateTimeFormatter.ISO_DATE_TIME);
+        LocalDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+        Message message = Message.builder()
+                .id(sequenceGeneratorService.generateSequence(messageDto.getId()+"_message_sequence"))
+                .senderId(messageDto.getSenderId())
+                .content(messageDto.getContent())
+                .messageType(messageDto.getMessageType())
+                .attachments(attachments)
+                .timestamp(localDateTime)
+                        .build();
 
         if (optionalChat.isPresent()) {
             Chat chat = optionalChat.get();
