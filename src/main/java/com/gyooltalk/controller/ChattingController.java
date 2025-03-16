@@ -46,9 +46,10 @@ public class ChattingController {
 
     @MessageMapping("/chat/send/{chatId}")
     @SendTo("/subscribe/chat/{chatId}")
-    public MessageDto sendMessage(@Payload SendMessageDto messageDto, @DestinationVariable String chatId) {
+    public MessageDto sendMessage(@Payload SendMessageDto messageDto, @DestinationVariable Long chatId ) {
         log.debug("Received chatId, message: {}, {}", chatId, messageDto.getContent());
 
+        chattingService.saveMessage(chatId,messageDto);
         return messageDto;
     }
 
