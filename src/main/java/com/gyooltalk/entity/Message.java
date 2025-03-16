@@ -29,5 +29,5 @@ public class Message {
 
     private List<Attachment> attachments; // 파일 리스트
 
-    private LocalDateTime timestamp; // 보낸 시간
+    private String timestamp; // 보낸 시간
 }
