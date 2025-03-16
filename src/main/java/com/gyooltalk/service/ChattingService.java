@@ -87,15 +87,16 @@ public class ChattingService {
                 attachments.add(attach);
             }
         }
-        ZonedDateTime utcDateTime = ZonedDateTime.parse(messageDto.getTimestamp(), DateTimeFormatter.ISO_DATE_TIME);
-        LocalDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        String formattedTime = LocalDateTime.now().format(formatter);
+
         Message message = Message.builder()
-                .id(sequenceGeneratorService.generateSequence(messageDto.getId()+"_message_sequence"))
+                .id(sequenceGeneratorService.generateSequence(chatId+"_message_sequence"))
                 .senderId(messageDto.getSenderId())
                 .content(messageDto.getContent())
                 .messageType(messageDto.getMessageType())
                 .attachments(attachments)
-                .timestamp(localDateTime)
+                .timestamp(formattedTime)
                         .build();
 
         if (optionalChat.isPresent()) {
@@ -105,6 +106,23 @@ public class ChattingService {
         } else {
             // 채팅방을 찾을 수 없을 때 예외를 던집니다.
             throw new RuntimeException("채팅방을 찾을 수 없습니다.");
+        }
+    }
+
+    public ResponseEntity<?> fetchMessage(Long chatId) {
+        // 채팅방 ID로 채팅방을 조회
+        Optional<Chat> optionalChat = chatRepository.findById(chatId); // chatId는 long 타입으로 변환
+
+        // 채팅방이 존재하는지 확인
+        if (optionalChat.isPresent()) {
+            // 채팅방에서 메시지를 가져옴
+            Chat chat = optionalChat.get();
+
+            // 채팅방에 있는 메시지만 반환
+            return ResponseEntity.ok(chat.getMessages());
+        } else {
+            // 채팅방을 찾을 수 없으면 예외를 던짐
+            return ResponseEntity.status(404).body("채팅방을 찾을 수 없습니다.");
         }
     }
 }

@@ -53,4 +53,10 @@ public class ChattingController {
         return messageDto;
     }
 
+    @PostMapping("/fetchMessage")
+    public ResponseEntity<?> fetchMessage(@RequestParam Long chatId) {
+        log.debug("fetchMessage ==> chatId: {}", chatId);
+        return chattingService.fetchMessage(chatId);
+    }
+
 }
