@@ -18,3 +18,4 @@ public class UserDto {
     private String lastLoginDate;
     private boolean isFriendRequest;
 }
+

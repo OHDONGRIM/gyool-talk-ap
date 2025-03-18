@@ -34,6 +34,7 @@ public class SecurityConfig {
 
     public static final String[] AUTH_WHITELIST = {
             "/login",
+            "/naverLogin",
             "/join/**",
             "/user/**",
             "/ws/**",
