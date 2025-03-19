@@ -12,5 +12,7 @@ import lombok.NoArgsConstructor;
 public class CreateChattingRequestDto {
 
     private String friendId;
+    private String friendNickname;
+    private String userNickname;
 
 }
