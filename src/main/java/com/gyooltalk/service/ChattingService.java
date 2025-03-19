@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -52,7 +53,7 @@ public class ChattingService {
         } else {
             Chat chat = new Chat();
             chat.setId(sequenceGeneratorService.generateSequence("chat_sequence"));
-            chat.setChatroomName("Chat: " + userId + ", " + friendId);
+            chat.setChatroomName("Chat: " + createChattingRequestDto.getUserNickname() + ", " + createChattingRequestDto.getFriendNickname());
             chat.setMessages(new ArrayList<>());
             chat.setParticipants(Arrays.asList(userId, friendId));
             chat = chatRepository.save(chat);
@@ -87,8 +88,16 @@ public class ChattingService {
                 attachments.add(attach);
             }
         }
+
+        Long timestamp = Long.parseLong(messageDto.getTimestamp());
+
+        // 타임스탬프를 LocalDateTime으로 변환
+        Instant instant = Instant.ofEpochMilli(timestamp);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-        String formattedTime = LocalDateTime.now().format(formatter);
+        String formattedTime = localDateTime.format(formatter);
+
 
         Message message = Message.builder()
                 .id(sequenceGeneratorService.generateSequence(chatId+"_message_sequence"))
