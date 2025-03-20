@@ -26,4 +26,7 @@ public class Chat {
 
     @Field("participants")
     private List<String> participants; // 채팅 참여자 목록
+
+    @Field("entry_time")
+    private List<String> entryTime; // 채팅 참여자 입장시간
 }

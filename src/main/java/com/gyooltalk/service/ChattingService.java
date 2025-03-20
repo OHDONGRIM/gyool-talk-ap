@@ -3,10 +3,7 @@ package com.gyooltalk.service;
 import com.gyooltalk.entity.Attachment;
 import com.gyooltalk.entity.Chat;
 import com.gyooltalk.entity.Message;
-import com.gyooltalk.payload.AttachmentDto;
-import com.gyooltalk.payload.ChatDto;
-import com.gyooltalk.payload.CreateChattingRequestDto;
-import com.gyooltalk.payload.SendMessageDto;
+import com.gyooltalk.payload.*;
 import com.gyooltalk.repository.ChatRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,6 @@ public class ChattingService {
         String friendId = createChattingRequestDto.getFriendId();
 
         log.debug("ChattingService createChatting userId: {} friendId: {}", userId, friendId);
-
         Optional<Chat> optionalChat = chatRepository.findByParticipants(userId, friendId);
 
         if (optionalChat.isPresent()) {
@@ -55,6 +53,10 @@ public class ChattingService {
             chat.setChatroomName("Chat: " + userId + ", " + friendId);
             chat.setMessages(new ArrayList<>());
             chat.setParticipants(Arrays.asList(userId, friendId));
+            chat.setEntryTime(Arrays.asList(
+                    Instant.now().toString(),  // userId 입장 시간
+                    Instant.now().toString()   // friendId 입장 시간
+            ));
             chat = chatRepository.save(chat);
             log.debug("New Chat id: {}", chat.getId());
             return ResponseEntity.ok(chat.getId());
@@ -66,10 +68,31 @@ public class ChattingService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName();
         log.debug("ChattingService fetchChatroom userId: {}", userId);
-        List<ChatDto> chatDtos = chatRepository.findByUserId(userId);
-        log.debug("ChattingService fetchChatroom chatDtos: {}", chatDtos);
+        //userid로 입장시간이 빈값이 아닌 리스트 가져오기
+        List<ChatDto> chats = chatRepository.findByUserId(userId);
 
-        return ResponseEntity.ok(chatDtos);
+        List<ChatDto> validChats = chats.stream()
+                .filter(chat -> {
+                    int index = chat.getParticipants().indexOf(userId);
+                    System.out.println(index+"dddd" + chat.getEntryTime().get(index));
+                    return index != -1 && !chat.getEntryTime().get(index).equals("");
+                })
+                .collect(Collectors.toList());
+        log.debug("ChattingService fetchChatroom chatDtos: {}", validChats);
+
+        return ResponseEntity.ok(validChats);
+    }
+
+    public ResponseEntity<?> deleteChatroom(DeleteChattingRequestDto  deleteChattingRequestDto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+        Optional<Chat> chat = chatRepository.findByChatId(deleteChattingRequestDto.getId());
+        Chat chatToDelete = chat.get();
+        int userIndex = chatToDelete.getParticipants().indexOf(userId);
+
+        chatRepository.removeUserFromParticipants(deleteChattingRequestDto.getId(),userIndex);
+
+        return ResponseEntity.ok("ok");
     }
 
     public Chat saveMessage(Long chatId, SendMessageDto messageDto) {
