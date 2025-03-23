@@ -3,6 +3,7 @@ package com.gyooltalk.service;
 import com.gyooltalk.entity.Attachment;
 import com.gyooltalk.entity.Chat;
 import com.gyooltalk.entity.Message;
+import com.gyooltalk.entity.Participant;
 import com.gyooltalk.payload.AttachmentDto;
 import com.gyooltalk.payload.ChatDto;
 import com.gyooltalk.payload.CreateChattingRequestDto;
@@ -51,11 +52,22 @@ public class ChattingService {
             log.debug("Existing chat id: {}", chat.getId());
             return ResponseEntity.ok(chat.getId());
         } else {
+            // 데이터 베이스 구조 변경에 따른 데이터 입력 방법 변경
+        List<Participant> participants = new ArrayList<>();
+        participants.add(Participant.builder()
+                .userId(userId)
+                .joinTime(LocalDateTime.now())
+                .build());
+        participants.add(Participant.builder()
+                .userId(friendId)
+                .joinTime(LocalDateTime.now())
+                .build());
+
             Chat chat = new Chat();
             chat.setId(sequenceGeneratorService.generateSequence("chat_sequence"));
             chat.setChatroomName("Chat: " + createChattingRequestDto.getUserNickname() + ", " + createChattingRequestDto.getFriendNickname());
             chat.setMessages(new ArrayList<>());
-            chat.setParticipants(Arrays.asList(userId, friendId));
+            chat.setParticipants(participants);
             chat = chatRepository.save(chat);
             log.debug("New Chat id: {}", chat.getId());
             return ResponseEntity.ok(chat.getId());
@@ -78,8 +90,8 @@ public class ChattingService {
         Optional<Chat> optionalChat = chatRepository.findById(chatId);
         List<Attachment> attachments = new ArrayList<>();
 
-        if(messageDto.getAttachments().size() > 0){
-            for(AttachmentDto attachment : messageDto.getAttachments()){
+        if (messageDto.getAttachments().size() > 0) {
+            for (AttachmentDto attachment : messageDto.getAttachments()) {
                 Attachment attach = Attachment.builder()
                         .id(attachment.getId())
                         .fileType(attachment.getFileType())
@@ -100,13 +112,13 @@ public class ChattingService {
 
 
         Message message = Message.builder()
-                .id(sequenceGeneratorService.generateSequence(chatId+"_message_sequence"))
+                .id(sequenceGeneratorService.generateSequence(chatId + "_message_sequence"))
                 .senderId(messageDto.getSenderId())
                 .content(messageDto.getContent())
                 .messageType(messageDto.getMessageType())
                 .attachments(attachments)
                 .timestamp(formattedTime)
-                        .build();
+                .build();
 
         if (optionalChat.isPresent()) {
             Chat chat = optionalChat.get();

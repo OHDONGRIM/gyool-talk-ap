@@ -28,9 +28,11 @@ public class LoginService {
     public ResponseEntity<LoginResponseDto> login(UserDto userDto) {
 
         // 유저 id 검색 후, 존재하지 않는 아이디면 404 코드 반환
-        User user = userRepository.findById(userDto.getUserId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User", "userId", userDto.getUserId()));
+        User user = userRepository.findByUserId(userDto.getUserId());
+
+        if (user == null) {
+            throw new ResourceNotFoundException("User", "userId", userDto.getUserId());
+        }
 
         // userPassword 암호화 이후 로직
         // 유저 password 비교 후, 같지 않으면 401 코드 반환

@@ -25,5 +25,5 @@ public class Chat {
     private List<Message> messages; // 채팅 리스트
 
     @Field("participants")
-    private List<String> participants; // 채팅 참여자 목록
+    private List<Participant> participants; // 채팅 참여자 목록
 }
