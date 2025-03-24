@@ -3,7 +3,11 @@ package com.gyooltalk.service;
 import com.gyooltalk.entity.Attachment;
 import com.gyooltalk.entity.Chat;
 import com.gyooltalk.entity.Message;
-import com.gyooltalk.payload.*;
+import com.gyooltalk.entity.Participant;
+import com.gyooltalk.payload.AttachmentDto;
+import com.gyooltalk.payload.ChatDto;
+import com.gyooltalk.payload.CreateChattingRequestDto;
+import com.gyooltalk.payload.SendMessageDto;
 import com.gyooltalk.repository.ChatRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -48,15 +52,22 @@ public class ChattingService {
             log.debug("Existing chat id: {}", chat.getId());
             return ResponseEntity.ok(chat.getId());
         } else {
+            // 데이터 베이스 구조 변경에 따른 데이터 입력 방법 변경
+        List<Participant> participants = new ArrayList<>();
+        participants.add(Participant.builder()
+                .userId(userId)
+                .joinTime(LocalDateTime.now())
+                .build());
+        participants.add(Participant.builder()
+                .userId(friendId)
+                .joinTime(LocalDateTime.now())
+                .build());
+
             Chat chat = new Chat();
             chat.setId(sequenceGeneratorService.generateSequence("chat_sequence"));
-            chat.setChatroomName("Chat: " + userId + ", " + friendId);
+            chat.setChatroomName("Chat: " + createChattingRequestDto.getUserNickname() + ", " + createChattingRequestDto.getFriendNickname());
             chat.setMessages(new ArrayList<>());
-            chat.setParticipants(Arrays.asList(userId, friendId));
-            chat.setEntryTime(Arrays.asList(
-                    Instant.now().toString(),  // userId 입장 시간
-                    Instant.now().toString()   // friendId 입장 시간
-            ));
+            chat.setParticipants(participants);
             chat = chatRepository.save(chat);
             log.debug("New Chat id: {}", chat.getId());
             return ResponseEntity.ok(chat.getId());
@@ -100,8 +111,8 @@ public class ChattingService {
         Optional<Chat> optionalChat = chatRepository.findById(chatId);
         List<Attachment> attachments = new ArrayList<>();
 
-        if(messageDto.getAttachments().size() > 0){
-            for(AttachmentDto attachment : messageDto.getAttachments()){
+        if (messageDto.getAttachments().size() > 0) {
+            for (AttachmentDto attachment : messageDto.getAttachments()) {
                 Attachment attach = Attachment.builder()
                         .id(attachment.getId())
                         .fileType(attachment.getFileType())
@@ -110,17 +121,25 @@ public class ChattingService {
                 attachments.add(attach);
             }
         }
+
+        Long timestamp = Long.parseLong(messageDto.getTimestamp());
+
+        // 타임스탬프를 LocalDateTime으로 변환
+        Instant instant = Instant.ofEpochMilli(timestamp);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-        String formattedTime = LocalDateTime.now().format(formatter);
+        String formattedTime = localDateTime.format(formatter);
+
 
         Message message = Message.builder()
-                .id(sequenceGeneratorService.generateSequence(chatId+"_message_sequence"))
+                .id(sequenceGeneratorService.generateSequence(chatId + "_message_sequence"))
                 .senderId(messageDto.getSenderId())
                 .content(messageDto.getContent())
                 .messageType(messageDto.getMessageType())
                 .attachments(attachments)
                 .timestamp(formattedTime)
-                        .build();
+                .build();
 
         if (optionalChat.isPresent()) {
             Chat chat = optionalChat.get();

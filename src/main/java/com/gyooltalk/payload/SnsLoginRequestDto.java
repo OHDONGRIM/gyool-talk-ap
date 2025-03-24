@@ -9,10 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateChattingRequestDto {
-
-    private String friendId;
-    private String friendNickname;
-    private String userNickname;
-
+public class SnsLoginRequestDto {
+    private String accessToken;
 }
