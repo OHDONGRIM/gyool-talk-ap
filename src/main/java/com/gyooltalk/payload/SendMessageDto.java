@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,5 +18,5 @@ public class SendMessageDto implements MessageDto {
     private String content;
     private int messageType;
     private List<AttachmentDto> attachments;
-    private String timestamp;
+    private LocalDateTime timestamp;
 }

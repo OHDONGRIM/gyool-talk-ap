@@ -1,5 +1,6 @@
 package com.gyooltalk.payload;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MessageDto {
@@ -8,5 +9,5 @@ public interface MessageDto {
     String getContent(); // 채팅내용
     int getMessageType(); // 메시지 타입
     List<AttachmentDto> getAttachments(); // 파일 리스트
-    String getTimestamp(); // 보낸 시간
+    LocalDateTime getTimestamp(); // 보낸 시간
 }
