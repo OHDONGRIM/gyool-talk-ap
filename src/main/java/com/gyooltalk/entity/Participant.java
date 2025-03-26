@@ -13,5 +13,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Participant {
     private String userId;
-    private LocalDateTime joinTime;
+    private Long joinTime;
 }

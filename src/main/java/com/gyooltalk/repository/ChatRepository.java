@@ -30,7 +30,7 @@ public interface ChatRepository extends MongoRepository<Chat, Long> {
     Optional<Chat> findByChatIdAndUserId(Long chatId, String userId);
 
     @Query("{ '_id': ?0, 'participants': { $elemMatch: { 'userId': ?1, 'joinTime': { $ne: null } } } }")
-    Boolean existsByChatIdAndUserIdAndJoinTimeNotNull(Long chatId, String userId);
+    Optional<Chat>  existsByChatIdAndUserIdAndJoinTimeNotNull(Long chatId, String userId);
 
 //    @Query("{ '_id': ?0, 'userId': ?1, 'messages.jointime': { $gte: ?2 } }")
 //    Optional<Chat> findMessagesByChatIdAndUserIdAndJointimeAfter(Long chatId, Long userId, Date jointime);
@@ -43,5 +43,5 @@ public interface ChatRepository extends MongoRepository<Chat, Long> {
     @Modifying
     @Query("{ '_id': ?0, 'participants.userId': ?1 }")
     @Update("{ '$set': { 'participants.$.joinTime': ?2 } }")
-    void updateJoinTimeByChatIdAndUserId(Long chatId, String userId, LocalDateTime joinTime);
+    void updateJoinTimeByChatIdAndUserId(Long chatId, String userId, Long joinTime);
 }

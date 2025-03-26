@@ -18,5 +18,5 @@ public class SendMessageDto implements MessageDto {
     private String content;
     private int messageType;
     private List<AttachmentDto> attachments;
-    private LocalDateTime timestamp;
+    private String timestamp;
 }

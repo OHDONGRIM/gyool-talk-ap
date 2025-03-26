@@ -14,10 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.text.SimpleDateFormat;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,29 +38,31 @@ public class ChattingService {
 
         log.debug("ChattingService createChatting userId: {} friendId: {}", userId, friendId);
         Optional<Chat> optionalChat = chatRepository.findByParticipants(userId, friendId);
+        long currentTimeMillis = System.currentTimeMillis();
 
         if (optionalChat.isPresent()) {
             Chat chat = optionalChat.get();
             log.debug("Existing chat id: {}", chat.getId());
             // 채팅방이 존재하면 로그인 유저의 jointime null check
-            Boolean isJointime = chatRepository.existsByChatIdAndUserIdAndJoinTimeNotNull(chat.getId(), userId);
+            Optional<Chat>  exitUserCheck = chatRepository.existsByChatIdAndUserIdAndJoinTimeNotNull(chat.getId(), userId);
             //jointime이 null 이면
-            if(isJointime==null){
-                LocalDateTime now = LocalDateTime.now();
-                chatRepository.updateJoinTimeByChatIdAndUserId(chat.getId(), userId, now);
+            if(exitUserCheck.isEmpty()){
+                chatRepository.updateJoinTimeByChatIdAndUserId(chat.getId(), userId, currentTimeMillis);
             }
             return ResponseEntity.ok(chat.getId());
         } else {
             // 데이터 베이스 구조 변경에 따른 데이터 입력 방법 변경
-        List<Participant> participants = new ArrayList<>();
-        participants.add(Participant.builder()
-                .userId(userId)
-                .joinTime(LocalDateTime.now())
-                .build());
-        participants.add(Participant.builder()
-                .userId(friendId)
-                .joinTime(LocalDateTime.now())
-                .build());
+
+
+            List<Participant> participants = new ArrayList<>();
+            participants.add(Participant.builder()
+                    .userId(userId)
+                    .joinTime(currentTimeMillis)
+                    .build());
+            participants.add(Participant.builder()
+                    .userId(friendId)
+                    .joinTime(currentTimeMillis)
+                    .build());
 
             Chat chat = new Chat();
             chat.setId(sequenceGeneratorService.generateSequence("chat_sequence"));
@@ -113,12 +113,12 @@ public class ChattingService {
             }
         }
 
-       // Long timestamp = Long.parseLong(String.valueOf(messageDto.getTimestamp()));
+        Long timestamp = Long.parseLong(String.valueOf(messageDto.getTimestamp()));
 
-        // 타임스탬프를 LocalDateTime으로 변환
+//         타임스탬프를 LocalDateTime으로 변환
 //        Instant instant = Instant.ofEpochMilli(timestamp);
 //        LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        LocalDateTime localDateTime =messageDto.getTimestamp();
+
 
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 //        String formattedTime = localDateTime.format(formatter);
@@ -130,7 +130,7 @@ public class ChattingService {
                 .content(messageDto.getContent())
                 .messageType(messageDto.getMessageType())
                 .attachments(attachments)
-                .timestamp(localDateTime)
+                .timestamp(timestamp)
                 .build();
 
         if (optionalChat.isPresent()) {
@@ -157,12 +157,12 @@ public class ChattingService {
                     .filter(p -> p.getUserId().equals(userId))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("User not found in chat"));
-            LocalDateTime mongoJoinTime = participant.getJoinTime();  // MongoDB에서 가져온 Date 타입
+            Long mongoJoinTime = participant.getJoinTime();  // MongoDB에서 가져온 Date 타입
 
             List<Message> filteredMessages = optionalChat.get().getMessages().stream()
-                    .filter(message -> message.getTimestamp().isAfter(mongoJoinTime))  // 메시지가 joinTime 이후인지 확인
+                    .filter(message -> message.getTimestamp() > mongoJoinTime)// 메시지가 joinTime 이후인지 확인
                     .collect(Collectors.toList());
-
+            System.out.println(filteredMessages);
             // 채팅방에 있는 메시지만 반환
             return ResponseEntity.ok(filteredMessages);
         } else {
