@@ -9,11 +9,14 @@ import com.gyooltalk.repository.ChatRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +29,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class ChattingService {
 
+    @Value("${chat.file.upload-dir}")
+    private String uploadDir;
 
     private final ChatRepository chatRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
@@ -168,6 +173,54 @@ public class ChattingService {
         } else {
             // 채팅방을 찾을 수 없으면 예외를 던짐
             return ResponseEntity.status(404).body("채팅방을 찾을 수 없습니다.");
+        }
+    }
+
+    public ResponseEntity<String> uploadAttachment(MultipartFile file, String chatId) {
+        log.debug("ChattingService uploadAttachment chatId: {}, {}", chatId, file);
+        try {
+            // 파일이 비었는지 확인
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("파일이 없습니다.");
+            }
+
+            // 파일 크기 제한
+            long maxFileSize = 5 * 1024 * 1024; // 5MB
+            if (file.getSize() > maxFileSize) {
+                return ResponseEntity.badRequest().body("파일 크기가 너무 큽니다. (최대 5MB)");
+            }
+
+            // 지원하는 파일 확장자인지 확인 (이미지 & PDF만 허용 예시)
+            String fileName = file.getOriginalFilename();
+            log.debug("ChattingService uploadAttachment fileName: {}", fileName);
+            if (fileName != null) {
+                String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+                List<String> allowedExtensions = Arrays.asList("jpg", "jpeg", "png", "gif", "pdf", "txt");
+                if (!allowedExtensions.contains(extension)) {
+                    return ResponseEntity.badRequest().body("허용되지 않은 파일 형식입니다.");
+                }
+            }
+
+            Date now = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            //String fileName =  sdf.format(now)+".jpg";
+
+            // 4️⃣ 파일 저장 처리 (예: 로컬 서버에 저장)
+            String filePath = uploadDir + fileName;
+            File destFile = new File(filePath);
+
+            // 디렉토리 생성
+            destFile.getParentFile().mkdirs();
+
+            // 파일 저장
+            file.transferTo(destFile);
+
+            return ResponseEntity.ok("파일 업로드 성공: " + filePath);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+
+                    .body("파일 업로드 중 오류 발생: " + e.getMessage());
         }
     }
 }

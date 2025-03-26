@@ -13,6 +13,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,6 +60,14 @@ public class ChattingController {
     public ResponseEntity<?> fetchMessage(@RequestParam Long chatId) {
         log.debug("fetchMessage ==> chatId: {}", chatId);
         return chattingService.fetchMessage(chatId);
+    }
+
+    @PostMapping("/uploadAttachment")
+    public ResponseEntity<String> uploadAttachment(
+            @RequestParam(value ="file", required=false) MultipartFile file, // 파일을 MultipartFile로 받음
+            @RequestParam("chatId") String chatId) {
+        log.debug("uploadAttachment ==> chatId: {}, {}", chatId, file);
+        return chattingService.uploadAttachment(file, chatId);
     }
 
 }
