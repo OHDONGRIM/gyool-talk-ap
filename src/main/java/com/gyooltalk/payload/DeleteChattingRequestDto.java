@@ -1,17 +1,16 @@
-package com.gyooltalk.entity;
+package com.gyooltalk.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
-@Builder
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Participant {
-    private String userId;
-    private Long joinTime;
+public class DeleteChattingRequestDto {
+
+    private Long id;
+
 }

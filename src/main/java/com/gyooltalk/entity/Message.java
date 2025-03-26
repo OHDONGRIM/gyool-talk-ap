@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -28,5 +29,5 @@ public class Message {
 
     private List<Attachment> attachments; // 파일 리스트
 
-    private String timestamp; // 보낸 시간
+    private Long timestamp; // 보낸 시간
 }

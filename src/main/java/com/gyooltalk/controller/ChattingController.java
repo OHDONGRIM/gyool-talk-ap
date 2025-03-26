@@ -2,10 +2,7 @@ package com.gyooltalk.controller;
 
 import com.gyooltalk.entity.Chat;
 import com.gyooltalk.entity.Message;
-import com.gyooltalk.payload.ChatDto;
-import com.gyooltalk.payload.CreateChattingRequestDto;
-import com.gyooltalk.payload.MessageDto;
-import com.gyooltalk.payload.SendMessageDto;
+import com.gyooltalk.payload.*;
 import com.gyooltalk.service.ChattingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +40,11 @@ public class ChattingController {
         return chattingService.fetchChatroom();
     }
 
+    @PostMapping("/deleteChatting")
+    public ResponseEntity<?> deleteChatroom(@RequestBody DeleteChattingRequestDto deleteChattingRequestDto) {
+        log.debug("deleteChatting");
+        return chattingService.deleteChatroom(deleteChattingRequestDto);
+    }
 
     @MessageMapping("/chat/send/{chatId}")
     @SendTo("/subscribe/chat/{chatId}")
